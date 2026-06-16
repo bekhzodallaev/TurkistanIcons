@@ -2,6 +2,8 @@ import { useTranslations } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { use } from 'react';
 import { Link } from '@/i18n/navigation';
+import { IconGrid } from '@/components/icon-grid';
+import { trendingIcons } from '@/lib/mock-data';
 
 const CATEGORY_SLUGS = [
   'traditional-clothing',
@@ -19,13 +21,14 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
 
   const t = useTranslations('Home');
   const tc = useTranslations('Categories');
+  const trending = trendingIcons(12);
 
   return (
     <div className="space-y-10">
       <section className="rounded-2xl bg-emerald-50 p-10 text-center dark:bg-emerald-950/30">
         <h1 className="text-3xl font-bold sm:text-4xl">{t('heroTitle')}</h1>
         <p className="mx-auto mt-3 max-w-2xl opacity-70">{t('heroSubtitle')}</p>
-        <form action="search" className="mx-auto mt-6 flex max-w-md gap-2">
+        <form action={`/${locale}/search`} className="mx-auto mt-6 flex max-w-md gap-2">
           <input
             name="q"
             placeholder={t('searchPlaceholder')}
@@ -54,7 +57,7 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
 
       <section>
         <h2 className="mb-4 text-xl font-semibold">{t('trending')}</h2>
-        <p className="opacity-60">{t('empty')}</p>
+        <IconGrid icons={trending} />
       </section>
     </div>
   );
