@@ -20,7 +20,7 @@ export default function CategoriesPage({ params }: { params: Promise<{ locale: s
           <Link
             key={category.slug}
             href={`/category/${category.slug}`}
-            className="rounded-xl border border-black/10 p-6 transition hover:shadow-md"
+            className="rounded-xl border border-black/10 p-6 transition hover:border-emerald-500/60 hover:bg-black/[0.02] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 dark:border-white/10 dark:hover:border-emerald-500/60 dark:hover:bg-white/5"
           >
             <h2 className="text-lg font-semibold">{tc(category.slug)}</h2>
             <p className="mt-1 text-sm opacity-60">

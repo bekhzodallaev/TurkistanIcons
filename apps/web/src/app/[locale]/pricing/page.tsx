@@ -25,7 +25,9 @@ export default function PricingPage({ params }: { params: Promise<{ locale: stri
           <div
             key={plan.id}
             className={`flex flex-col rounded-2xl border p-6 ${
-              plan.highlight ? 'border-emerald-600 shadow-lg' : 'border-black/10'
+              plan.highlight
+                ? 'border-emerald-600 shadow-lg'
+                : 'border-black/10 dark:border-white/10'
             }`}
           >
             {plan.highlight ? (
@@ -47,10 +49,10 @@ export default function PricingPage({ params }: { params: Promise<{ locale: stri
               ))}
             </ul>
             <button
-              className={`mt-6 rounded-lg px-5 py-2.5 font-medium ${
+              className={`mt-6 rounded-lg px-5 py-2.5 font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                 plan.highlight
-                  ? 'bg-emerald-600 text-white'
-                  : 'border border-black/15 hover:border-emerald-600'
+                  ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                  : 'border border-black/15 hover:border-emerald-600 hover:bg-black/[0.02] dark:border-white/15 dark:hover:bg-white/5'
               }`}
             >
               {t('choose')}

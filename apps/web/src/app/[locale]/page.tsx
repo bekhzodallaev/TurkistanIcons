@@ -32,7 +32,7 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
           <input
             name="q"
             placeholder={t('searchPlaceholder')}
-            className="w-full rounded-lg border border-black/15 px-4 py-2"
+            className="w-full rounded-lg border border-black/15 bg-white px-4 py-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 dark:border-white/15 dark:bg-white/5"
           />
           <button className="rounded-lg bg-emerald-600 px-5 py-2 font-medium text-white">
             {t('searchButton')}
@@ -47,7 +47,7 @@ export default function HomePage({ params }: { params: Promise<{ locale: string 
             <Link
               key={slug}
               href={`/category/${slug}`}
-              className="rounded-xl border border-black/10 p-5 transition hover:shadow-md"
+              className="rounded-xl border border-black/10 p-5 transition hover:border-emerald-500/60 hover:bg-black/[0.02] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 dark:border-white/10 dark:hover:border-emerald-500/60 dark:hover:bg-white/5"
             >
               <span className="font-medium">{tc(slug)}</span>
             </Link>
