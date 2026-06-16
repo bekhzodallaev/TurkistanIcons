@@ -7,16 +7,24 @@
     "node": ">=20"
   },
   "scripts": {
+    "postinstall": "prisma generate --schema prisma/schema.prisma",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "db:migrate": "pnpm --filter @turkistan/api prisma:migrate",
+    "db:deploy": "pnpm --filter @turkistan/api prisma:deploy",
+    "db:seed": "pnpm --filter @turkistan/api prisma:seed",
     "clean": "turbo run clean && rimraf node_modules"
   },
   "devDependencies": {
+    "prisma": "^6.19.3",
     "rimraf": "^6.0.1",
     "turbo": "^2.3.4",
     "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3"
   }
 }

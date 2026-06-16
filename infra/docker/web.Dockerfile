@@ -12,6 +12,8 @@ COPY apps/web/package.json apps/web/package.json
 COPY packages/config/package.json packages/config/package.json
 COPY packages/types/package.json packages/types/package.json
 COPY packages/ui/package.json packages/ui/package.json
+# Prisma schema is needed by the root postinstall (`prisma generate`).
+COPY prisma ./prisma
 RUN pnpm install --frozen-lockfile
 
 # ---- build ----

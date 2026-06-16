@@ -40,6 +40,48 @@ jobs:
       - name: Build
         run: pnpm build
 
+  database:
+    name: Prisma migrate + seed (Postgres 16)
+    runs-on: ubuntu-latest
+    needs: verify
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: turkistan_icons
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d turkistan_icons"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/turkistan_icons?schema=public
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply migrations to an empty DB
+        run: pnpm --filter @turkistan/api exec prisma migrate deploy
+
+      - name: Seed categories + tags
+        run: pnpm --filter @turkistan/api exec prisma db seed
+
+      - name: Assert schema is in sync (no drift / no pending migration)
+        run: pnpm --filter @turkistan/api exec prisma migrate status
+
   health:
     name: API /health smoke
     runs-on: ubuntu-latest

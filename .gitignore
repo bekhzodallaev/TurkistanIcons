@@ -37,6 +37,7 @@ coverage/
 # Turbo / caches
 .turbo/
 .cache/
+.tmp/
 
 # Docker volumes (local)
 infra/compose/data/
