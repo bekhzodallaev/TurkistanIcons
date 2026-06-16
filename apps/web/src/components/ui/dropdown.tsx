@@ -56,7 +56,7 @@ export function Dropdown({
         aria-expanded={open}
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex items-center gap-2 rounded-md border border-black/15 bg-transparent px-2 py-1 text-sm transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+        className="inline-flex items-center gap-2 rounded-md border border-black/15 bg-transparent px-2 py-1 text-sm transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 dark:border-white/15 dark:hover:bg-white/10"
       >
         {selected?.icon}
         <span>{selected?.label}</span>
@@ -68,7 +68,7 @@ export function Dropdown({
       {open ? (
         <ul
           role="listbox"
-          className="absolute right-0 z-10 mt-1 min-w-full overflow-hidden rounded-md border border-black/10 bg-white shadow-lg dark:bg-neutral-900"
+          className="absolute right-0 z-10 mt-1 min-w-full overflow-hidden rounded-md border border-black/10 bg-white shadow-lg dark:border-white/10 dark:bg-neutral-900"
         >
           {options.map((option) => (
             <li key={option.value} role="option" aria-selected={option.value === value}>

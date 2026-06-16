@@ -9,7 +9,7 @@ export function IconCard({ icon }: { icon: Icon }) {
   return (
     <Link
       href={`/icon/${icon.slug}`}
-      className="group flex flex-col items-center rounded-xl border border-black/10 p-4 transition hover:-translate-y-0.5 hover:shadow-md"
+      className="group flex flex-col items-center rounded-xl border border-black/10 p-4 transition hover:-translate-y-0.5 hover:shadow-md dark:border-white/10"
     >
       <div
         className="flex h-20 w-20 items-center justify-center"

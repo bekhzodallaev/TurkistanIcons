@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { routing, isLocale } from '@/i18n/routing';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
+import { ThemeProvider } from '@/components/theme-provider';
 import '../globals.css';
 
 // Pre-render all locales at build time.
@@ -35,13 +36,15 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <body>
-        <NextIntlClientProvider>
-          <Header />
-          <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
-          <Footer />
-        </NextIntlClientProvider>
+        <ThemeProvider>
+          <NextIntlClientProvider>
+            <Header />
+            <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+            <Footer />
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

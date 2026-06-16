@@ -8,7 +8,8 @@
     "search": "Поиск",
     "pricing": "Цены",
     "signIn": "Войти",
-    "language": "Язык"
+    "language": "Язык",
+    "toggleTheme": "Переключить тему"
   },
   "Common": {
     "free": "Бесплатно",

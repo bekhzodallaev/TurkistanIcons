@@ -8,7 +8,8 @@
     "search": "Search",
     "pricing": "Pricing",
     "signIn": "Sign in",
-    "language": "Language"
+    "language": "Language",
+    "toggleTheme": "Toggle theme"
   },
   "Common": {
     "free": "Free",
