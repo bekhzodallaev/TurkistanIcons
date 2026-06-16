@@ -1,0 +1,78 @@
+name: turkistan-icons
+
+# Local development datastores: Postgres (source of truth), Redis (cache /
+# sessions / BullMQ), and MinIO (S3-compatible stand-in for Cloudflare R2).
+# Bring up with:
+#   docker compose -f infra/compose/docker-compose.yml up -d
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: turkistan_icons
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d turkistan_icons"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-shot job: create the buckets the upload pipeline expects.
+  # - turkistan-icons: public preview bucket (PNG thumbnails)
+  # - turkistan-svg:   separate origin for sanitized user SVGs (never inlined)
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin &&
+      mc mb -p local/turkistan-icons &&
+      mc mb -p local/turkistan-svg &&
+      mc anonymous set download local/turkistan-icons &&
+      echo 'buckets ready';
+      "
+
+volumes:
+  pgdata:
+  redisdata:
+  miniodata:

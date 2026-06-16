@@ -1,0 +1,29 @@
+{
+  "name": "@turkistan/config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "files": [
+    "eslint",
+    "tsconfig",
+    "tailwind"
+  ],
+  "exports": {
+    "./tsconfig/base.json": "./tsconfig/base.json",
+    "./tsconfig/nestjs.json": "./tsconfig/nestjs.json",
+    "./tsconfig/nextjs.json": "./tsconfig/nextjs.json",
+    "./tsconfig/library.json": "./tsconfig/library.json",
+    "./eslint/base": "./eslint/base.js",
+    "./tailwind/preset": "./tailwind/preset.js"
+  },
+  "scripts": {
+    "lint": "echo \"@turkistan/config: nothing to lint\" && exit 0",
+    "typecheck": "echo \"@turkistan/config: nothing to typecheck\" && exit 0",
+    "test": "echo \"@turkistan/config: no tests\" && exit 0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "typescript-eslint": "^8.20.0",
+    "eslint-config-prettier": "^9.1.0"
+  }
+}
