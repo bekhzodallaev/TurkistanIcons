@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { routing, isLocale } from '@/i18n/routing';
 import { Header } from '@/components/header';
@@ -35,11 +35,14 @@ export default async function LocaleLayout({
   if (!isLocale(locale)) notFound();
   setRequestLocale(locale);
 
+  // Forward messages so Client Components (e.g. the theme toggle) can translate.
+  const messages = await getMessages();
+
   return (
     <html lang={locale} suppressHydrationWarning>
       <body>
         <ThemeProvider>
-          <NextIntlClientProvider>
+          <NextIntlClientProvider messages={messages}>
             <Header />
             <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
             <Footer />
