@@ -24,7 +24,7 @@ export default async function CreatorPage({
 
   return (
     <div>
-      <div className="mb-6 flex items-center gap-4">
+      <div className="mb-6 flex items-center gap-2.5 sm:gap-5">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-xl font-bold text-emerald-700 dark:bg-emerald-900/40">
           {creator.name.charAt(0)}
         </div>

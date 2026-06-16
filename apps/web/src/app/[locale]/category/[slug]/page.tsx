@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { FiArrowLeft } from 'react-icons/fi';
 import { PageHeading } from '@/components/page-heading';
 import { IconGrid } from '@/components/icon-grid';
 import { Link } from '@/i18n/navigation';
@@ -27,8 +28,12 @@ export default async function CategoryDetailPage({
 
   return (
     <div>
-      <Link href="/categories" className="text-sm text-emerald-600">
-        ← {t('backToCategories')}
+      <Link
+        href="/categories"
+        className="inline-flex items-center gap-1.5 text-sm text-emerald-600"
+      >
+        <FiArrowLeft aria-hidden />
+        {t('backToCategories')}
       </Link>
       <div className="mt-2">
         <PageHeading
