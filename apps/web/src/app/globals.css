@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+/* Drive the `dark:` variant off a `.dark` class (toggled by next-themes)
+   instead of the default `prefers-color-scheme` media query. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+}
+
+.dark {
+  --background: #0b1220;
+  --foreground: #e2e8f0;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, sans-serif;
+}

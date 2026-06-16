@@ -1,0 +1,110 @@
+{
+  "Metadata": {
+    "title": "TurkistanIcons — Uzbek & Central Asian Icons",
+    "description": "A marketplace for Uzbek and Central Asian cultural icons — Suzani, Atlas, Registan, Plov, Navruz and more."
+  },
+  "Nav": {
+    "categories": "Categories",
+    "search": "Search",
+    "pricing": "Pricing",
+    "signIn": "Sign in",
+    "language": "Language",
+    "toggleTheme": "Toggle theme"
+  },
+  "Common": {
+    "free": "Free",
+    "premium": "Premium"
+  },
+  "Home": {
+    "heroTitle": "Uzbek & Central Asian icons, crafted by creators",
+    "heroSubtitle": "Suzani ornaments, Atlas patterns, Registan, Plov, Navruz and more — download free or buy premium packs.",
+    "searchPlaceholder": "Search icons…",
+    "searchButton": "Search",
+    "trending": "Trending",
+    "browseCategories": "Browse categories",
+    "empty": "No icons published yet. Be the first creator to upload!"
+  },
+  "Categories": {
+    "traditional-clothing": "Traditional Clothing",
+    "patterns-ornaments": "Patterns & Ornaments",
+    "architecture": "Architecture",
+    "cuisine": "Cuisine",
+    "silk-road": "Silk Road",
+    "holidays-symbols": "Holidays & Symbols",
+    "history-heritage": "History & Heritage"
+  },
+  "CategoriesPage": {
+    "title": "Categories",
+    "subtitle": "Explore icons by cultural theme.",
+    "iconCount": "{count} icons",
+    "backToCategories": "Back to categories",
+    "emptyCategory": "No icons in this category yet."
+  },
+  "Search": {
+    "title": "All icons",
+    "placeholder": "Search icons…",
+    "searchButton": "Search",
+    "resultsFor": "Results for “{query}”",
+    "results": "{count} results",
+    "noResults": "No icons found. Try a different search.",
+    "all": "All",
+    "free": "Free",
+    "premium": "Premium"
+  },
+  "IconDetail": {
+    "by": "by",
+    "downloads": "{count} downloads",
+    "download": "Download",
+    "buy": "Buy for {price}",
+    "freeLicense": "Free license with attribution",
+    "premiumLicense": "Premium license",
+    "tags": "Tags",
+    "related": "Related icons"
+  },
+  "Creator": {
+    "iconCount": "{count} icons"
+  },
+  "Pricing": {
+    "title": "Simple pricing",
+    "subtitle": "Start free. Upgrade when you need more.",
+    "popular": "Most popular",
+    "perMonth": "month",
+    "choose": "Choose plan",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "f1": "Access to all free icons",
+        "f2": "SVG & PNG downloads",
+        "f3": "Attribution required"
+      },
+      "pro": {
+        "name": "Pro",
+        "f1": "Everything in Free",
+        "f2": "Unlimited premium downloads",
+        "f3": "No attribution required",
+        "f4": "Priority support"
+      },
+      "business": {
+        "name": "Business",
+        "f1": "Everything in Pro",
+        "f2": "Extended commercial license",
+        "f3": "Team seats",
+        "f4": "Invoicing",
+        "f5": "Dedicated account manager"
+      }
+    }
+  },
+  "Auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?"
+  },
+  "Footer": {
+    "rights": "All rights reserved.",
+    "tagline": "Celebrating Central Asian visual culture."
+  }
+}

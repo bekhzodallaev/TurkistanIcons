@@ -1,0 +1,110 @@
+{
+  "Metadata": {
+    "title": "TurkistanIcons — O‘zbek va Markaziy Osiyo ikonkalari",
+    "description": "O‘zbek va Markaziy Osiyo madaniy ikonkalari bozori — Suzana, Atlas, Registon, Palov, Navro‘z va boshqalar."
+  },
+  "Nav": {
+    "categories": "Turkumlar",
+    "search": "Qidiruv",
+    "pricing": "Narxlar",
+    "signIn": "Kirish",
+    "language": "Til",
+    "toggleTheme": "Mavzuni almashtirish"
+  },
+  "Common": {
+    "free": "Bepul",
+    "premium": "Premium"
+  },
+  "Home": {
+    "heroTitle": "Ijodkorlar yaratgan O‘zbek va Markaziy Osiyo ikonkalari",
+    "heroSubtitle": "Suzana naqshlari, Atlas gullari, Registon, Palov, Navro‘z va boshqalar — bepul yuklab oling yoki premium to‘plamlarni xarid qiling.",
+    "searchPlaceholder": "Ikonkalarni qidirish…",
+    "searchButton": "Qidirish",
+    "trending": "Ommabop",
+    "browseCategories": "Turkumlarni ko‘rish",
+    "empty": "Hozircha ikonkalar yo‘q. Birinchi ijodkor bo‘ling!"
+  },
+  "Categories": {
+    "traditional-clothing": "An’anaviy kiyimlar",
+    "patterns-ornaments": "Naqsh va bezaklar",
+    "architecture": "Me’morchilik",
+    "cuisine": "Milliy taomlar",
+    "silk-road": "Buyuk Ipak yo‘li",
+    "holidays-symbols": "Bayramlar va ramzlar",
+    "history-heritage": "Tarix va meros"
+  },
+  "CategoriesPage": {
+    "title": "Turkumlar",
+    "subtitle": "Ikonkalarni madaniy mavzular bo‘yicha ko‘ring.",
+    "iconCount": "{count} ta ikonka",
+    "backToCategories": "Turkumlarga qaytish",
+    "emptyCategory": "Bu turkumda hali ikonkalar yo‘q."
+  },
+  "Search": {
+    "title": "Barcha ikonkalar",
+    "placeholder": "Ikonkalarni qidirish…",
+    "searchButton": "Qidirish",
+    "resultsFor": "“{query}” bo‘yicha natijalar",
+    "results": "{count} ta natija",
+    "noResults": "Ikonka topilmadi. Boshqa so‘rovni sinab ko‘ring.",
+    "all": "Barchasi",
+    "free": "Bepul",
+    "premium": "Premium"
+  },
+  "IconDetail": {
+    "by": "muallif",
+    "downloads": "{count} marta yuklab olingan",
+    "download": "Yuklab olish",
+    "buy": "{price} ga sotib olish",
+    "freeLicense": "Muallifni ko‘rsatish sharti bilan bepul litsenziya",
+    "premiumLicense": "Premium litsenziya",
+    "tags": "Teglar",
+    "related": "O‘xshash ikonkalar"
+  },
+  "Creator": {
+    "iconCount": "{count} ta ikonka"
+  },
+  "Pricing": {
+    "title": "Oddiy narxlar",
+    "subtitle": "Bepul boshlang. Kerak bo‘lganda kengaytiring.",
+    "popular": "Eng ommabop",
+    "perMonth": "oy",
+    "choose": "Tanlash",
+    "plans": {
+      "free": {
+        "name": "Bepul",
+        "f1": "Barcha bepul ikonkalarga kirish",
+        "f2": "SVG va PNG yuklab olish",
+        "f3": "Muallifni ko‘rsatish talab qilinadi"
+      },
+      "pro": {
+        "name": "Pro",
+        "f1": "Bepul rejadagi barcha imkoniyatlar",
+        "f2": "Cheksiz premium yuklab olishlar",
+        "f3": "Muallifni ko‘rsatish shart emas",
+        "f4": "Ustuvor qo‘llab-quvvatlash"
+      },
+      "business": {
+        "name": "Biznes",
+        "f1": "Pro rejadagi barcha imkoniyatlar",
+        "f2": "Kengaytirilgan tijorat litsenziyasi",
+        "f3": "Jamoa o‘rinlari",
+        "f4": "Hisob-faktura",
+        "f5": "Shaxsiy menejer"
+      }
+    }
+  },
+  "Auth": {
+    "signIn": "Kirish",
+    "signUp": "Ro‘yxatdan o‘tish",
+    "email": "Email",
+    "password": "Parol",
+    "name": "Ism",
+    "noAccount": "Hisobingiz yo‘qmi?",
+    "haveAccount": "Hisobingiz bormi?"
+  },
+  "Footer": {
+    "rights": "Barcha huquqlar himoyalangan.",
+    "tagline": "Markaziy Osiyo vizual madaniyatini ulug‘laymiz."
+  }
+}
