@@ -1,0 +1,35 @@
+{
+  "Metadata": {
+    "title": "TurkistanIcons — O‘zbek va Markaziy Osiyo ikonkalari",
+    "description": "O‘zbek va Markaziy Osiyo madaniy ikonkalari bozori — Suzana, Atlas, Registon, Palov, Navro‘z va boshqalar."
+  },
+  "Nav": {
+    "categories": "Turkumlar",
+    "search": "Qidiruv",
+    "pricing": "Narxlar",
+    "signIn": "Kirish",
+    "language": "Til"
+  },
+  "Home": {
+    "heroTitle": "Ijodkorlar yaratgan O‘zbek va Markaziy Osiyo ikonkalari",
+    "heroSubtitle": "Suzana naqshlari, Atlas gullari, Registon, Palov, Navro‘z va boshqalar — bepul yuklab oling yoki premium to‘plamlarni xarid qiling.",
+    "searchPlaceholder": "Ikonkalarni qidirish…",
+    "searchButton": "Qidirish",
+    "trending": "Ommabop",
+    "browseCategories": "Turkumlarni ko‘rish",
+    "empty": "Hozircha ikonkalar yo‘q. Birinchi ijodkor bo‘ling!"
+  },
+  "Categories": {
+    "traditional-clothing": "An’anaviy kiyimlar",
+    "patterns-ornaments": "Naqsh va bezaklar",
+    "architecture": "Me’morchilik",
+    "cuisine": "Milliy taomlar",
+    "silk-road": "Buyuk Ipak yo‘li",
+    "holidays-symbols": "Bayramlar va ramzlar",
+    "history-heritage": "Tarix va meros"
+  },
+  "Footer": {
+    "rights": "Barcha huquqlar himoyalangan.",
+    "tagline": "Markaziy Osiyo vizual madaniyatini ulug‘laymiz."
+  }
+}

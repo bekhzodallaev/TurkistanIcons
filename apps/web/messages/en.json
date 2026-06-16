@@ -1,0 +1,35 @@
+{
+  "Metadata": {
+    "title": "TurkistanIcons — Uzbek & Central Asian Icons",
+    "description": "A marketplace for Uzbek and Central Asian cultural icons — Suzani, Atlas, Registan, Plov, Navruz and more."
+  },
+  "Nav": {
+    "categories": "Categories",
+    "search": "Search",
+    "pricing": "Pricing",
+    "signIn": "Sign in",
+    "language": "Language"
+  },
+  "Home": {
+    "heroTitle": "Uzbek & Central Asian icons, crafted by creators",
+    "heroSubtitle": "Suzani ornaments, Atlas patterns, Registan, Plov, Navruz and more — download free or buy premium packs.",
+    "searchPlaceholder": "Search icons…",
+    "searchButton": "Search",
+    "trending": "Trending",
+    "browseCategories": "Browse categories",
+    "empty": "No icons published yet. Be the first creator to upload!"
+  },
+  "Categories": {
+    "traditional-clothing": "Traditional Clothing",
+    "patterns-ornaments": "Patterns & Ornaments",
+    "architecture": "Architecture",
+    "cuisine": "Cuisine",
+    "silk-road": "Silk Road",
+    "holidays-symbols": "Holidays & Symbols",
+    "history-heritage": "History & Heritage"
+  },
+  "Footer": {
+    "rights": "All rights reserved.",
+    "tagline": "Celebrating Central Asian visual culture."
+  }
+}

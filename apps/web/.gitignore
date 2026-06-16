@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+dist
+.turbo
+*.tsbuildinfo
+next-env.d.ts.timestamp
+.env
+.env.*
+!.env.example
+.DS_Store
