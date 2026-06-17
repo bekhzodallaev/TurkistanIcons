@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint · Typecheck · Test · Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+  health:
+    name: API /health smoke
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build types + api
+        run: pnpm --filter @turkistan/types build && pnpm --filter @turkistan/api build
+
+      - name: Start API and curl /health
+        working-directory: apps/api
+        env:
+          NODE_ENV: production
+          API_PORT: 4000
+        run: |
+          node dist/main.js &
+          API_PID=$!
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:4000/health > /tmp/health.json; then
+              echo "health OK:"; cat /tmp/health.json; kill $API_PID; exit 0
+            fi
+            sleep 1
+          done
+          echo "API did not become healthy in time"; kill $API_PID || true; exit 1
