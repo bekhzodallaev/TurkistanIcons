@@ -1,0 +1,59 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Resend } from 'resend';
+import type { Env } from '../config/env';
+
+/**
+ * Transactional email via Resend (docs/ROADMAP.md M2).
+ * When RESEND_API_KEY is unset (local dev / CI) emails are logged instead of
+ * sent, so the flows are fully exercisable without external credentials.
+ */
+@Injectable()
+export class MailerService {
+  private readonly logger = new Logger(MailerService.name);
+  private readonly resend: Resend | null;
+  private readonly from: string;
+  private readonly webUrl: string;
+
+  constructor(config: ConfigService<Env, true>) {
+    const apiKey = config.get('RESEND_API_KEY', { infer: true });
+    this.resend = apiKey ? new Resend(apiKey) : null;
+    this.from = config.get('MAIL_FROM', { infer: true });
+    this.webUrl = config.get('WEB_URL', { infer: true });
+  }
+
+  async sendEmailVerification(to: string, token: string): Promise<void> {
+    const link = `${this.webUrl}/verify-email?token=${encodeURIComponent(token)}`;
+    await this.send(
+      to,
+      'Verify your TurkistanIcons email',
+      `<p>Welcome to TurkistanIcons! Confirm your email to activate your account.</p>
+       <p><a href="${link}">Verify email</a></p>
+       <p>This link expires in 24 hours. If you didn't sign up, ignore this email.</p>`,
+    );
+  }
+
+  async sendPasswordReset(to: string, token: string): Promise<void> {
+    const link = `${this.webUrl}/reset-password?token=${encodeURIComponent(token)}`;
+    await this.send(
+      to,
+      'Reset your TurkistanIcons password',
+      `<p>We received a request to reset your password.</p>
+       <p><a href="${link}">Choose a new password</a></p>
+       <p>This link expires in 1 hour. If you didn't request this, you can safely ignore it.</p>`,
+    );
+  }
+
+  private async send(to: string, subject: string, html: string): Promise<void> {
+    if (!this.resend) {
+      this.logger.log(`[dev mailer] to=${to} subject="${subject}"\n${html}`);
+      return;
+    }
+    const { error } = await this.resend.emails.send({ from: this.from, to, subject, html });
+    if (error) {
+      // Don't leak provider internals to the caller; log and surface generically.
+      this.logger.error(`Failed to send "${subject}" to ${to}: ${error.message}`);
+      throw new Error('Failed to send email');
+    }
+  }
+}

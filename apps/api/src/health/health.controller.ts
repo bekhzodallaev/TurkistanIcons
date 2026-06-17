@@ -1,16 +1,19 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
 import {
   HealthCheck,
   HealthCheckService,
   MemoryHealthIndicator,
 } from '@nestjs/terminus';
+import { Public } from '../common/decorators/public.decorator';
 
 /**
- * Health endpoints. Served outside the `api` global prefix so probes hit
- * `/health` directly. Datastore (DB/Redis) readiness indicators are added as
- * those dependencies come online in later milestones.
+ * Health endpoints. Served outside the `api` global prefix and unversioned so
+ * probes hit `/health` directly. Public so the global JwtAuthGuard does not
+ * gate liveness/readiness. Datastore (DB/Redis) readiness indicators are added
+ * as those dependencies come online in later milestones.
  */
-@Controller('health')
+@Public()
+@Controller({ path: 'health', version: VERSION_NEUTRAL })
 export class HealthController {
   constructor(
     private readonly health: HealthCheckService,
