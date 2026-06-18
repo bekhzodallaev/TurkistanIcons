@@ -11,9 +11,11 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { CreatorsModule } from './modules/creators/creators.module';
 import { TagsModule } from './modules/tags/tags.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
 import { loggerOptions } from './observability/logger';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -22,11 +24,13 @@ import { RedisModule } from './redis/redis.module';
     PrismaModule,
     RedisModule,
     MailerModule,
+    StorageModule,
     HealthModule,
     AuthModule,
     CategoriesModule,
     TagsModule,
     CreatorsModule,
+    UploadsModule,
   ],
   providers: [
     // Deny-by-default: every route requires a valid access token (JwtAuthGuard,

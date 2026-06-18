@@ -44,6 +44,21 @@ export const envSchema = z
     RESEND_API_KEY: z.string().optional(),
     MAIL_FROM: z.string().default('TurkistanIcons <no-reply@turkistanicons.com>'),
 
+    // ---- Cloudflare R2 / S3-compatible storage (M5) ----
+    // Optional so the app boots without storage; upload routes 503 until set.
+    // R2_ENDPOINT points at MinIO for local dev; omit for real R2 (derived from account id).
+    R2_ENDPOINT: z.string().url().optional(),
+    R2_ACCOUNT_ID: z.string().optional(),
+    R2_ACCESS_KEY_ID: z.string().optional(),
+    R2_SECRET_ACCESS_KEY: z.string().optional(),
+    R2_BUCKET: z.string().default('turkistan-icons'),
+    R2_SVG_BUCKET: z.string().default('turkistan-svg'),
+    R2_PUBLIC_BASE_URL: z.string().url().default('https://cdn.turkistanicons.com'),
+    R2_FORCE_PATH_STYLE: z
+      .enum(['true', 'false'])
+      .optional()
+      .transform((v) => (v === undefined ? undefined : v === 'true')),
+
     SENTRY_DSN: z.string().optional(),
     SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
   })
