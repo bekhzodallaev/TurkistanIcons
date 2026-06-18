@@ -66,6 +66,34 @@ export class MailerService {
     );
   }
 
+  async sendIconApproved(to: string, iconName: string): Promise<void> {
+    await this.send(
+      to,
+      `Your icon "${iconName}" was approved`,
+      `<p>Good news — your icon <strong>${iconName}</strong> passed review and is now published on TurkistanIcons.</p>`,
+    );
+  }
+
+  async sendIconRejected(to: string, iconName: string, reason: string): Promise<void> {
+    await this.send(
+      to,
+      `Your icon "${iconName}" was not approved`,
+      `<p>Your icon <strong>${iconName}</strong> was reviewed and could not be published:</p>
+       <blockquote>${reason}</blockquote>
+       <p>You're welcome to address the feedback and upload an updated version.</p>`,
+    );
+  }
+
+  async sendIconChangesRequested(to: string, iconName: string, reason: string): Promise<void> {
+    await this.send(
+      to,
+      `Changes requested for "${iconName}"`,
+      `<p>A reviewer requested changes to your icon <strong>${iconName}</strong>:</p>
+       <blockquote>${reason}</blockquote>
+       <p>Please update it and it will be re-reviewed.</p>`,
+    );
+  }
+
   private async send(to: string, subject: string, html: string): Promise<void> {
     if (!this.resend) {
       this.logger.log(`[dev mailer] to=${to} subject="${subject}"\n${html}`);

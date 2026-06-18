@@ -106,6 +106,11 @@ export class CategoriesService {
     await this.invalidate();
   }
 
+  /** Drop the cached tree — call after icon_count changes (e.g. publish). */
+  invalidateTree(): Promise<void> {
+    return this.invalidate();
+  }
+
   // ---- internals ----
 
   private async buildTree(): Promise<CategoryNode[]> {
