@@ -1,19 +1,25 @@
 import 'reflect-metadata';
-import pino from 'pino';
+import { NestFactory } from '@nestjs/core';
+import { Logger } from 'nestjs-pino';
+import { initSentry } from './observability/sentry';
+import { WorkerModule } from './worker/worker.module';
 
 /**
- * Upload worker entrypoint (placeholder).
- *
- * The real BullMQ consumer that validates/sanitizes SVGs and renders PNG
- * previews arrives in M5 (Icon Upload Pipeline). This stub exists so the
- * worker process, its Dockerfile, and deploy wiring are in place from M0.
+ * Upload worker entrypoint. Boots a headless Nest context that hosts the BullMQ
+ * `icon-processing` consumer (sanitize SVG → render previews → promote → writeback).
+ * Runs as a separate process from the HTTP API (see infra/docker).
  */
-const logger = pino({ name: 'upload-worker' });
+async function bootstrap(): Promise<void> {
+  initSentry();
 
-async function main(): Promise<void> {
-  logger.info('upload worker placeholder started; BullMQ consumer arrives in M5');
-  // Keep the process alive so container orchestration treats it as a long-running service.
-  await new Promise<void>(() => {});
+  const app = await NestFactory.createApplicationContext(WorkerModule, { bufferLogs: true });
+  app.useLogger(app.get(Logger));
+  app.enableShutdownHooks();
+
+  app.get(Logger).log('Upload worker started; consuming icon-processing jobs', 'WorkerBootstrap');
 }
 
-void main();
+bootstrap().catch((err) => {
+  console.error('Fatal: upload worker failed to bootstrap', err);
+  process.exit(1);
+});

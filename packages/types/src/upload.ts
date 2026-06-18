@@ -79,6 +79,43 @@ export interface UploadStatusDto {
   rejectionReason: string | null;
 }
 
+/** Creator metadata editor — edit an owned icon while DRAFT or PENDING_REVIEW. */
+export const updateIconMetadataSchema = z
+  .object({
+    name: z.string().trim().min(1).max(160).optional(),
+    description: z.string().trim().max(2000).nullable().optional(),
+    categoryId: z.string().uuid().optional(),
+    priceType: priceTypeSchema.optional(),
+    priceCents: z.number().int().min(0).max(1_000_000).optional(),
+    license: licenseTypeSchema.optional(),
+    tags: z.array(z.string().trim().min(1).max(60)).max(20).optional(),
+  })
+  .refine((dto) => Object.keys(dto).length > 0, {
+    message: 'Provide at least one field to update',
+  })
+  .refine((dto) => !(dto.priceType === 'FREE' && (dto.priceCents ?? 0) > 0), {
+    path: ['priceCents'],
+    message: 'Free icons must have a price of 0',
+  })
+  .refine((dto) => !(dto.priceType === 'PREMIUM' && dto.priceCents === 0), {
+    path: ['priceCents'],
+    message: 'Premium icons require a price greater than 0',
+  });
+export type UpdateIconMetadataInput = z.infer<typeof updateIconMetadataSchema>;
+
+export interface IconMetadataDto {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  status: z.infer<typeof iconStatusSchema>;
+  categoryId: string;
+  priceType: PriceType;
+  priceCents: number;
+  license: LicenseType;
+  tags: string[];
+}
+
 /** Machine-readable reasons an icon can be REJECTED by the pipeline. */
 export const UPLOAD_REJECTION_REASONS = [
   'invalid_svg',
