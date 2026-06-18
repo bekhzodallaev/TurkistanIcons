@@ -103,6 +103,10 @@ jobs:
         env:
           NODE_ENV: production
           API_PORT: 4000
+          # Production boot requires strong JWT secrets (validated in env.ts).
+          # CI-only smoke values — not real secrets.
+          JWT_ACCESS_SECRET: ci-smoke-access-secret-0123456789abcdef
+          JWT_REFRESH_SECRET: ci-smoke-refresh-secret-0123456789abcdef
         run: |
           node dist/main.js &
           API_PID=$!
