@@ -44,6 +44,28 @@ export class MailerService {
     );
   }
 
+  async sendCreatorApproved(to: string, slug: string): Promise<void> {
+    const link = `${this.webUrl}/creators/${encodeURIComponent(slug)}`;
+    await this.send(
+      to,
+      'Your TurkistanIcons creator application was approved',
+      `<p>Congratulations — you're now a TurkistanIcons creator!</p>
+       <p>Your public profile: <a href="${link}">${link}</a></p>
+       <p>You can start uploading icons from your creator dashboard.</p>`,
+    );
+  }
+
+  async sendCreatorRejected(to: string, reason: string): Promise<void> {
+    await this.send(
+      to,
+      'Update on your TurkistanIcons creator application',
+      `<p>Thanks for applying to become a TurkistanIcons creator.</p>
+       <p>We're not able to approve your application at this time:</p>
+       <blockquote>${reason}</blockquote>
+       <p>You're welcome to address the feedback and apply again.</p>`,
+    );
+  }
+
   private async send(to: string, subject: string, html: string): Promise<void> {
     if (!this.resend) {
       this.logger.log(`[dev mailer] to=${to} subject="${subject}"\n${html}`);
