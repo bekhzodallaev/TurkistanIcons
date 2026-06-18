@@ -46,6 +46,9 @@ export class RateLimitGuard implements CanActivate {
       const body = req.body as { email?: unknown } | undefined;
       const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '-';
       identity = `${ip}:${email}`;
+    } else if (opts.keyBy === 'user') {
+      const user = (req as Request & { user?: { id?: string } }).user;
+      identity = user?.id ? `user:${user.id}` : ip;
     }
     const key = `auth:rl:${bucket}:${identity}`;
 

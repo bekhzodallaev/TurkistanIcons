@@ -11,8 +11,9 @@ export interface RateLimitOptions {
    * How to bucket callers:
    *  - 'ip'        → per client IP
    *  - 'ip+email'  → per (IP, body.email) pair (stricter for auth endpoints)
+   *  - 'user'      → per authenticated user id (falls back to IP if anonymous)
    */
-  keyBy?: 'ip' | 'ip+email';
+  keyBy?: 'ip' | 'ip+email' | 'user';
   /** Stable name used in the Redis key (defaults to the route path). */
   name?: string;
 }
