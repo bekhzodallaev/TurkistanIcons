@@ -104,6 +104,15 @@ export class IconStateService {
     }
   }
 
+  /** Current status of an icon (worker idempotency guard); null if missing. */
+  async currentStatus(iconId: string): Promise<IconStatus | null> {
+    const icon = await this.prisma.icon.findUnique({
+      where: { id: iconId },
+      select: { status: true },
+    });
+    return icon?.status ?? null;
+  }
+
   findPublishedByChecksum(creatorId: string, checksum: string): Promise<Icon | null> {
     return this.prisma.icon.findFirst({
       where: { creatorId, checksum, status: 'PUBLISHED', deletedAt: null },

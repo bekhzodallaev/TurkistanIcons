@@ -5,11 +5,13 @@ import { LoggerModule } from 'nestjs-pino';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { validateEnv } from './config/env';
+import { QueueModule } from './infra/queue/queue.module';
 import { HealthModule } from './health/health.module';
 import { MailerModule } from './mailer/mailer.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { CreatorsModule } from './modules/creators/creators.module';
+import { IconsApiModule } from './modules/icons/icons-api.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { loggerOptions } from './observability/logger';
@@ -25,12 +27,14 @@ import { StorageModule } from './storage/storage.module';
     RedisModule,
     MailerModule,
     StorageModule,
+    QueueModule,
     HealthModule,
     AuthModule,
     CategoriesModule,
     TagsModule,
     CreatorsModule,
     UploadsModule,
+    IconsApiModule,
   ],
   providers: [
     // Deny-by-default: every route requires a valid access token (JwtAuthGuard,
