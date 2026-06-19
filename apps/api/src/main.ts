@@ -1,6 +1,7 @@
 import 'reflect-metadata';
-import { RequestMethod } from '@nestjs/common';
+import { RequestMethod, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
@@ -16,18 +17,21 @@ async function bootstrap(): Promise<void> {
   app.useLogger(app.get(Logger));
 
   app.use(helmet());
+  app.use(cookieParser());
   app.enableCors({
     origin: process.env.WEB_URL ?? 'http://localhost:3000',
     credentials: true,
   });
 
-  // Health probes live at the root; everything else is under /api.
+  // Health probes live at the root; everything else is under /api/v1.
   app.setGlobalPrefix('api', {
     exclude: [
       { path: 'health', method: RequestMethod.GET },
       { path: 'health/live', method: RequestMethod.GET },
     ],
   });
+  // URI versioning → /api/v1/... (HealthController opts out via VERSION_NEUTRAL).
+  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
 
   // NOTE: request-body validation is done with zod pipes at the edges
   // (see packages/types + M2), not Nest's class-validator ValidationPipe.

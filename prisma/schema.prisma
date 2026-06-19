@@ -1,0 +1,512 @@
+// TurkistanIcons — canonical Prisma schema.
+// Source of truth: docs/DATABASE.md. Keep field/column names in sync.
+//
+// Conventions (see DATABASE.md):
+//  - UUID primary keys; snake_case columns via @map / @@map.
+//  - created_at / updated_at on every table.
+//  - Money in integer minor units (cents) + currency char(3); never floats.
+//  - Soft delete via deleted_at where reversible.
+//
+// A few columns Prisma cannot express natively are finished in the migration SQL:
+//  - icons.search_vector is a STORED generated tsvector (GIN-indexed) — see SEARCH.md.
+//  - download_history is RANGE-partitioned by created_at (monthly).
+//  - inet columns are modelled as Unsupported("inet"); rows that populate them
+//    (download_history.ip, audit_log.ip) are written via raw SQL in later milestones.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [citext, pg_trgm]
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  VISITOR
+  USER
+  CREATOR
+  ADMIN
+}
+
+enum IconStatus {
+  DRAFT
+  PROCESSING
+  PENDING_REVIEW
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
+enum PriceType {
+  FREE
+  PREMIUM
+}
+
+enum LicenseType {
+  FREE_ATTRIBUTION
+  PREMIUM_STANDARD
+  PREMIUM_EXTENDED
+}
+
+enum PurchaseStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+}
+
+enum CreatorAppStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ModerationAction {
+  APPROVE
+  REJECT
+  REQUEST_CHANGES
+}
+
+// ---------------------------------------------------------------------------
+// Identity
+// ---------------------------------------------------------------------------
+
+model User {
+  id              String    @id @default(uuid()) @db.Uuid
+  email           String    @unique @db.Citext
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(6)
+  passwordHash    String?   @map("password_hash") // null for OAuth-only accounts
+  name            String
+  avatarUrl       String?   @map("avatar_url")
+  role            Role      @default(USER)
+  googleId        String?   @unique @map("google_id")
+  status          String    @default("active") // active / suspended
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  creator              Creator?
+  creatorApplications  CreatorApplication[] @relation("ApplicationApplicant")
+  reviewedApplications CreatorApplication[] @relation("ApplicationReviewer")
+  favorites            Favorite[]
+  collections          Collection[]
+  purchases            Purchase[]
+  downloads            DownloadHistory[]
+  reviews              Review[]
+  moderationEvents     ModerationEvent[]    @relation("ModerationModerator")
+  auditLogs            AuditLog[]           @relation("AuditActor")
+
+  @@map("users")
+}
+
+model Creator {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @unique @map("user_id") @db.Uuid
+  displayName       String   @map("display_name")
+  slug              String   @unique @db.Citext
+  bio               String?
+  website           String?
+  country           String?
+  revenueShareBps   Int      @default(7000) @map("revenue_share_bps") // 7000 bps = 70%
+  stripeAccountId   String?  @map("stripe_account_id")
+  totalDownloads    Int      @default(0) @map("total_downloads")
+  totalRevenueCents BigInt   @default(0) @map("total_revenue_cents")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  icons         Icon[]
+  iconPacks     IconPack[]
+  purchaseItems PurchaseItem[]
+  payouts       Payout[]
+
+  @@map("creators")
+}
+
+model CreatorApplication {
+  id           String           @id @default(uuid()) @db.Uuid
+  userId       String           @map("user_id") @db.Uuid
+  status       CreatorAppStatus @default(PENDING)
+  portfolioUrl String?          @map("portfolio_url")
+  message      String?
+  reviewedBy   String?          @map("reviewed_by") @db.Uuid
+  reviewNote   String?          @map("review_note")
+  createdAt    DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user     User  @relation("ApplicationApplicant", fields: [userId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("ApplicationReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@map("creator_applications")
+}
+
+// ---------------------------------------------------------------------------
+// Taxonomy
+// ---------------------------------------------------------------------------
+
+model Category {
+  id          String   @id @default(uuid()) @db.Uuid
+  parentId    String?  @map("parent_id") @db.Uuid
+  name        String
+  slug        String   @unique @db.Citext
+  description String?
+  iconCount   Int      @default(0) @map("icon_count")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryTree")
+  icons    Icon[]
+
+  @@index([parentId])
+  @@map("categories")
+}
+
+model Tag {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String    @unique @db.Citext
+  slug       String    @unique @db.Citext
+  usageCount Int       @default(0) @map("usage_count")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  iconTags   IconTag[]
+
+  @@map("tags")
+}
+
+// ---------------------------------------------------------------------------
+// Icons & packs
+// ---------------------------------------------------------------------------
+
+model Icon {
+  id              String                   @id @default(uuid()) @db.Uuid
+  creatorId       String                   @map("creator_id") @db.Uuid
+  categoryId      String                   @map("category_id") @db.Uuid
+  name            String
+  slug            String                   @db.Citext
+  description     String?
+  status          IconStatus               @default(DRAFT)
+  priceType       PriceType                @default(FREE) @map("price_type")
+  priceCents      Int                      @default(0) @map("price_cents")
+  currency        String                   @default("USD") @db.Char(3)
+  license         LicenseType              @default(FREE_ATTRIBUTION)
+  svgKey          String?                  @map("svg_key") // sanitized SVG (set after processing)
+  svgRawKey       String?                  @map("svg_raw_key") // original upload (quarantine)
+  pngKey          String?                  @map("png_key")
+  thumbKey        String?                  @map("thumb_key")
+  width           Int?
+  height          Int?
+  fileSize        Int?                     @map("file_size") // bytes (known after processing)
+  checksum        String? // sha256 of sanitized SVG (dedupe)
+  downloadCount   Int                      @default(0) @map("download_count")
+  favoriteCount   Int                      @default(0) @map("favorite_count")
+  rejectionReason String?                  @map("rejection_reason")
+  publishedAt     DateTime?                @map("published_at") @db.Timestamptz(6)
+  // STORED generated column; the GENERATED ALWAYS expression is added in migration SQL.
+  searchVector    Unsupported("tsvector")? @map("search_vector")
+  createdAt       DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime?                @map("deleted_at") @db.Timestamptz(6)
+
+  creator          Creator           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  category         Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  iconTags         IconTag[]
+  packItems        PackItem[]
+  coverOfPacks     IconPack[]        @relation("PackCoverIcon")
+  favorites        Favorite[]
+  collectionItems  CollectionItem[]
+  purchaseItems    PurchaseItem[]
+  downloads        DownloadHistory[]
+  reviews          Review[]
+  moderationEvents ModerationEvent[]
+
+  @@unique([creatorId, slug])
+  @@index([status, publishedAt])
+  @@index([categoryId])
+  @@index([creatorId])
+  @@index([checksum])
+  // GIN on search_vector and trigram on name are declared in migration SQL
+  // (search_vector is generated; name needs gin_trgm_ops).
+  @@map("icons")
+}
+
+model IconTag {
+  iconId String @map("icon_id") @db.Uuid
+  tagId  String @map("tag_id") @db.Uuid
+
+  icon Icon @relation(fields: [iconId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([iconId, tagId])
+  @@index([tagId])
+  @@map("icon_tags")
+}
+
+model IconPack {
+  id            String      @id @default(uuid()) @db.Uuid
+  creatorId     String      @map("creator_id") @db.Uuid
+  name          String
+  slug          String      @db.Citext
+  description   String?
+  status        IconStatus  @default(DRAFT)
+  priceCents    Int         @default(0) @map("price_cents")
+  currency      String      @default("USD") @db.Char(3)
+  license       LicenseType @default(FREE_ATTRIBUTION)
+  coverIconId   String?     @map("cover_icon_id") @db.Uuid
+  downloadCount Int         @default(0) @map("download_count")
+  publishedAt   DateTime?   @map("published_at") @db.Timestamptz(6)
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  creator          Creator           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  coverIcon        Icon?             @relation("PackCoverIcon", fields: [coverIconId], references: [id], onDelete: SetNull)
+  packItems        PackItem[]
+  purchaseItems    PurchaseItem[]
+  downloads        DownloadHistory[]
+  moderationEvents ModerationEvent[]
+
+  @@unique([creatorId, slug])
+  @@index([status, publishedAt])
+  @@index([creatorId])
+  @@map("icon_packs")
+}
+
+model PackItem {
+  packId    String @map("pack_id") @db.Uuid
+  iconId    String @map("icon_id") @db.Uuid
+  sortOrder Int    @default(0) @map("sort_order")
+
+  pack IconPack @relation(fields: [packId], references: [id], onDelete: Cascade)
+  icon Icon     @relation(fields: [iconId], references: [id], onDelete: Cascade)
+
+  @@id([packId, iconId])
+  @@index([iconId])
+  @@map("pack_items")
+}
+
+// ---------------------------------------------------------------------------
+// Engagement
+// ---------------------------------------------------------------------------
+
+model Favorite {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  iconId    String   @map("icon_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  icon Icon @relation(fields: [iconId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, iconId])
+  @@index([iconId])
+  @@map("favorites")
+}
+
+model Collection {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  name        String
+  slug        String   @db.Citext
+  isPublic    Boolean  @default(false) @map("is_public")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CollectionItem[]
+
+  @@unique([userId, slug])
+  @@map("collections")
+}
+
+model CollectionItem {
+  collectionId String   @map("collection_id") @db.Uuid
+  iconId       String   @map("icon_id") @db.Uuid
+  sortOrder    Int      @default(0) @map("sort_order")
+  addedAt      DateTime @default(now()) @map("added_at") @db.Timestamptz(6)
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  icon       Icon       @relation(fields: [iconId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, iconId])
+  @@index([iconId])
+  @@map("collection_items")
+}
+
+// ---------------------------------------------------------------------------
+// Commerce
+// ---------------------------------------------------------------------------
+
+model Purchase {
+  id                  String         @id @default(uuid()) @db.Uuid
+  userId              String         @map("user_id") @db.Uuid
+  status              PurchaseStatus @default(PENDING)
+  subtotalCents       Int            @map("subtotal_cents")
+  totalCents          Int            @map("total_cents")
+  currency            String         @db.Char(3)
+  stripeCheckoutId    String?        @map("stripe_checkout_id")
+  stripePaymentIntent String?        @map("stripe_payment_intent")
+  createdAt           DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items   PurchaseItem[]
+  payment Payment?
+
+  @@index([userId])
+  @@index([status])
+  @@map("purchases")
+}
+
+model PurchaseItem {
+  id                   String   @id @default(uuid()) @db.Uuid
+  purchaseId           String   @map("purchase_id") @db.Uuid
+  itemType             String   @map("item_type") // 'ICON' | 'PACK'
+  iconId               String?  @map("icon_id") @db.Uuid
+  packId               String?  @map("pack_id") @db.Uuid
+  creatorId            String   @map("creator_id") @db.Uuid
+  unitPriceCents       Int      @map("unit_price_cents")
+  platformFeeCents     Int      @map("platform_fee_cents")
+  creatorEarningsCents Int      @map("creator_earnings_cents")
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  purchase Purchase  @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  icon     Icon?     @relation(fields: [iconId], references: [id], onDelete: SetNull)
+  pack     IconPack? @relation(fields: [packId], references: [id], onDelete: SetNull)
+  creator  Creator   @relation(fields: [creatorId], references: [id], onDelete: Restrict)
+
+  @@index([purchaseId])
+  @@index([iconId])
+  @@index([packId])
+  @@index([creatorId])
+  @@map("purchase_items")
+}
+
+model Payment {
+  id            String   @id @default(uuid()) @db.Uuid
+  purchaseId    String   @unique @map("purchase_id") @db.Uuid
+  provider      String   @default("stripe")
+  amountCents   Int      @map("amount_cents")
+  currency      String   @db.Char(3)
+  status        String
+  stripeEventId String   @unique @map("stripe_event_id") // webhook idempotency key
+  rawPayload    Json     @map("raw_payload")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model Payout {
+  id               String       @id @default(uuid()) @db.Uuid
+  creatorId        String       @map("creator_id") @db.Uuid
+  amountCents      Int          @map("amount_cents")
+  currency         String       @db.Char(3)
+  status           PayoutStatus @default(PENDING)
+  stripeTransferId String?      @map("stripe_transfer_id")
+  periodStart      DateTime     @map("period_start") @db.Timestamptz(6)
+  periodEnd        DateTime     @map("period_end") @db.Timestamptz(6)
+  createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  creator Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId])
+  @@map("payouts")
+}
+
+// ---------------------------------------------------------------------------
+// Activity & audit
+// ---------------------------------------------------------------------------
+
+// RANGE-partitioned by created_at (monthly). The partitioning + initial
+// partitions are defined in the migration SQL; the composite PK (id, created_at)
+// is required because the partition key must be part of the primary key.
+model DownloadHistory {
+  id        String               @default(uuid()) @db.Uuid
+  userId    String?              @map("user_id") @db.Uuid
+  iconId    String               @map("icon_id") @db.Uuid
+  packId    String?              @map("pack_id") @db.Uuid
+  ip        Unsupported("inet")?
+  userAgent String?              @map("user_agent")
+  wasFree   Boolean              @map("was_free")
+  createdAt DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  icon Icon      @relation(fields: [iconId], references: [id], onDelete: Cascade)
+  pack IconPack? @relation(fields: [packId], references: [id], onDelete: SetNull)
+
+  @@id([id, createdAt])
+  @@index([userId])
+  @@index([iconId])
+  @@index([createdAt])
+  @@map("download_history")
+}
+
+model Review {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  iconId    String   @map("icon_id") @db.Uuid
+  rating    Int      @db.SmallInt // 1-5
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  icon Icon @relation(fields: [iconId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, iconId])
+  @@index([iconId])
+  @@map("reviews")
+}
+
+model ModerationEvent {
+  id          String           @id @default(uuid()) @db.Uuid
+  iconId      String?          @map("icon_id") @db.Uuid
+  packId      String?          @map("pack_id") @db.Uuid
+  moderatorId String           @map("moderator_id") @db.Uuid
+  action      ModerationAction
+  reason      String?
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  icon      Icon?     @relation(fields: [iconId], references: [id], onDelete: Cascade)
+  pack      IconPack? @relation(fields: [packId], references: [id], onDelete: Cascade)
+  moderator User      @relation("ModerationModerator", fields: [moderatorId], references: [id], onDelete: Restrict)
+
+  @@index([iconId])
+  @@index([packId])
+  @@map("moderation_events")
+}
+
+model AuditLog {
+  id        String               @id @default(uuid()) @db.Uuid
+  actorId   String?              @map("actor_id") @db.Uuid
+  action    String
+  entity    String
+  entityId  String               @map("entity_id") @db.Uuid
+  metadata  Json?
+  ip        Unsupported("inet")?
+  createdAt DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([entity, entityId])
+  @@map("audit_log")
+}

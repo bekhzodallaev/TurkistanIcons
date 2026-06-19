@@ -37,10 +37,12 @@ coverage/
 # Turbo / caches
 .turbo/
 .cache/
+.tmp/
 
 # Docker volumes (local)
 infra/compose/data/
 
-# Uploads (local dev)
-tmp/
-uploads/
+# Uploads (local dev) — root-anchored so it never matches source dirs
+# like apps/api/src/modules/uploads/.
+/tmp/
+/uploads/
