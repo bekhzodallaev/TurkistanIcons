@@ -8,6 +8,8 @@ import { validateEnv } from './config/env';
 import { HealthModule } from './health/health.module';
 import { MailerModule } from './mailer/mailer.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { TagsModule } from './modules/tags/tags.module';
 import { loggerOptions } from './observability/logger';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
@@ -21,6 +23,8 @@ import { RedisModule } from './redis/redis.module';
     MailerModule,
     HealthModule,
     AuthModule,
+    CategoriesModule,
+    TagsModule,
   ],
   providers: [
     // Deny-by-default: every route requires a valid access token (JwtAuthGuard,

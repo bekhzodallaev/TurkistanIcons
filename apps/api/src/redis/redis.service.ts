@@ -104,6 +104,22 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return { count, ttl };
   }
 
+  /** Read and JSON-parse a cached value, or null on miss/parse failure. */
+  async cacheGetJson<T>(key: string): Promise<T | null> {
+    const raw = await this.get(key);
+    if (raw === null) return null;
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  /** JSON-serialize and cache a value with a TTL (seconds). */
+  async cacheSetJson<T>(key: string, value: T, ttlSeconds: number): Promise<void> {
+    await this.setEx(key, JSON.stringify(value), ttlSeconds);
+  }
+
   async sAdd(key: string, member: string, ttlSeconds: number): Promise<void> {
     await this.client.sadd(key, member);
     await this.client.expire(key, ttlSeconds);
